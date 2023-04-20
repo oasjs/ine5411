@@ -81,7 +81,7 @@ intMatrixToBuffer:
 
   addi $t1, $t1, 1    # count++
   add $t4, $s1, $t1		# t4 = end base de mC + count
-  li $t5, 32          # t5 = codigo de quebra de linha em ASCII
+  li $t5, 13          # t5 = codigo de quebra de linha em ASCII
   sb $t5, ($t4)		    # buffer[count] = t5 = quebra de linha
 
   addi $t0, $t0, 1    # i++
