@@ -20,9 +20,9 @@
 	.eqv MATRIX_SIZE 3  # Tamanho da matriz
 	.eqv DATA_SIZE 4    # Tamanho do tipo
 	
-	buffer: .space 22    # 3 numeros, 3 espacos e 1 quebra p/ cada linha
+	buffer: .space 21    # 3 numeros, 3 espacos e 1 quebra p/ cada linha
 	
-	out_file: .asciiz "/home/oasjs/dev/ufsc/03/ine5411/atividade_2/exit.txt"
+	out_file: .asciiz "exit.txt"
 	
 .text
 .globl main
@@ -34,8 +34,6 @@ main:
 	
   la $a0, MC          # Endereço da matriz
   la $a1, buffer      # Endereço do buffer
-  li $a2, MATRIX_SIZE # Tamanho da matriz
-  li $a3, DATA_SIZE   # Tamanho do tipo de dado
   jal intMatrixToBuffer
 
   la $a0, out_file    # Endereço do arquivo
@@ -48,10 +46,8 @@ main:
 	syscall
 	
 intMatrixToBuffer:
-  move $s0, $a0 # s0 = endereco de MC
+  move $s0, $a0 # s0 = endereco de mC
   move $s1, $a1 # s1 = endereco do buffer
-  move $s2, $a2 # s2 = tamanho da matriz
-  move $s3, $a3 # s3 = tamanho do tipo de dado
 
   li $t0, 0         # i = 0
   li $t1, 0         # count = 0
@@ -60,32 +56,33 @@ intMatrixToBuffer:
   li $t3, 0 # j = 0
     
     Loop2:
-    mul $t4, $t0, $a2   # t4 = i * MATRIX_SIZE
-    add $t4, $t4, $t3   # t4 += j
-    mul $t4, $t4, $a3   # t4 *= DATA_SIZE
-    add $t4, $t4, $s0 	# t4 += end base de mC
-    lb $t5, ($t4)    		# t5 = primeiro byte de mC[t4]
-    addi $t5, $t5, 48   # t5 = codigo ASCII de t5
+    mul $t4, $t0, MATRIX_SIZE # t4 = i * MATRIX_SIZE
+    add $t4, $t4, $t3   			# t4 += j
+    mul $t4, $t4, DATA_SIZE   # t4 *= DATA_SIZE
+    add $t4, $t4, $s0 				# t4 += end base de mC
+    lb $t5, ($t4)    					# t5 = primeiro byte de mC[t4]
+    addi $t5, $t5, 48   			# t5 = codigo ASCII de t5
 
-		add $t4, $s1, $t1 	# t4 = end base de mC + count
+		add $t4, $s1, $t1 	# t4 = end buffer + count
     sb $t5, ($t4)    		# buffer[count] = t5
+		addi $t1, $t1, 1 		# count++
 
-		addi $t4, $t4, 1		# t4 += 1
+		add $t4, $s1, $t1		# t4 = end buffer + count
     li $t5, 32          # t5 = codigo de espaco em ASCII
     sb $t5, ($t4)    		# buffer[count] = t5 = espaco
+    addi $t1, $t1, 1    # count++
     
-    addi $t1, $t1, 2    # count += 2
-    addi $t3, $t3, 1    # j++
-    blt $t3, $s2, Loop2 # if j < 3, loop
+    addi $t3, $t3, 1    				# j++
+    blt $t3, MATRIX_SIZE, Loop2 # if j < 3, loop
     # Loop2 end
 
-  addi $t1, $t1, 1    # count++
-  add $t4, $s1, $t1		# t4 = end base de mC + count
-  li $t5, 13          # t5 = codigo de quebra de linha em ASCII
+  add $t4, $s1, $t1		# t4 = end buffer + count
+  li $t5, 10          # t5 = codigo de quebra de linha em ASCII
   sb $t5, ($t4)		    # buffer[count] = t5 = quebra de linha
+  addi $t1, $t1, 1    # count++
 
-  addi $t0, $t0, 1    # i++
-  blt $t0, $s2, Loop1 # if i < 3, loop
+  addi $t0, $t0, 1    				# i++
+  blt $t0, MATRIX_SIZE, Loop1 # if i < 3, loop
   # Loop1 end
 
   jr $ra
@@ -102,14 +99,14 @@ writeMatrixToFile:
 	syscall
 	move $s3, $v0		  # Salva o file descriptor em s3
 			
-	li, $v0, 15		  # Carrega a função write file
-  move $a0, $s3   # Move o file descriptor para a0
-	move $a1, $s1   # Endereço do buffer de caracteres
-  move $a2, $s2   # Número de caracteres
+	li, $v0, 15		  	# Carrega a função write file
+  move $a0, $s3   	# Move o file descriptor para a0
+	move $a1, $s1   	# Endereço do buffer de caracteres
+  move $a2, $s2   	# Número de caracteres
   syscall
 		
-  li $v0, 16    # Carrega a função close file
-  move $a0, $s0 # File descriptor do arquivo a ser fechado
+  li $v0, 16    		# Carrega a função close file
+  move $a0, $s0 		# File descriptor do arquivo a ser fechado
 	syscall
 
   jr $ra
