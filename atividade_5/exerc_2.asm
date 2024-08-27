@@ -3,8 +3,8 @@
 
 .data
 	.align 4
-	.eqv MAX 4
-	.eqv LEN 16
+	.eqv MAX 18
+	.eqv LEN 324
 	.eqv DATA_SIZE 4
 	.eqv block_size 2
 	mat_a: .float 1:LEN
